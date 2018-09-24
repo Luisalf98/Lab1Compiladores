@@ -3,10 +3,10 @@ package compiladores;
 
 import java.awt.Toolkit;
 import java.util.ArrayList;
-import java.util.HashMap;
 import javafx.scene.Group;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
+import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 
@@ -19,24 +19,28 @@ public class State {
     
     
     private final int id;
-    private final int stateType;
+    private int stateType;
     private final ArrayList<Transition> transitions;
     private Circle stateCircle;
     private Text text;
-    private HashMap<Integer,Integer> incidents;
+    
+    private int lr;
+    private int ll;
 
     public State(int id, int stateType) {
         this.id = id;
         this.stateType = stateType;
         
-        this.incidents = new HashMap<>();
+        this.ll = -1;
+        this.lr = -1;
         this.transitions = new ArrayList<>();
     }
 
-    public void createDraw(double x, double y, double r){
+    private void createDraw(double x, double y, double r){
         this.stateCircle = new Circle();
         this.text = new Text(x-5, y+5, String.valueOf(this.id));
         this.text.setTextAlignment(TextAlignment.CENTER);
+        this.text.setFont(Font.font(Af.FONT_SIZE));
         
         this.stateCircle.setCenterX(x);
         this.stateCircle.setCenterY(y);
@@ -60,29 +64,29 @@ public class State {
         } 
         
     }
-    
-    public void createTransitionsDraw(){
-        this.transitions.forEach((t) -> {
-            t.createDraw();
-        });
+
+    public int getLr() {
+        return lr;
     }
+
+    public void setLr(int lr) {
+        this.lr = lr;
+    }
+
+    public int getLl() {
+        return ll;
+    }
+
+    public void setLl(int ll) {
+        this.ll = ll;
+    }
+    
+    
 
     public Text getText() {
         return text;
     }
 
-    public HashMap<Integer,Integer> getIncidents() {
-        return this.incidents;
-    }
-    
-    public void addOneToIncidents(int key){
-        this.incidents.replace(key, this.incidents.get(key)+1);
-    }
-    
-    public int getIncidentCounter(int key){
-        return this.incidents.get(key);
-    }
-    
     public Circle getStateCircle() {
         return stateCircle;
     }
@@ -95,21 +99,26 @@ public class State {
         return this.stateType;
     }
 
+    public void setStateType(int stateType) {
+        this.stateType = stateType;
+    }
+
     public ArrayList<Transition> getTransitions() {
         return transitions;
     }
     
-    public void addTransition(State st, char c){
-        this.transitions.add(new Transition(this, st, c));
-        this.incidents.putIfAbsent(st.getId(), 0);
+    public void addTransition(Transition t){
+        this.transitions.add(t);
     }
     
-    public void draw(Group gp){
+    public void draw(Group gp, double x, double y, double r){
+        this.createDraw(x, y, r);
         gp.getChildren().addAll(this.stateCircle, this.text);
-        this.transitions.forEach((t)->{
-            t.draw(gp);
-        });
     }
     
+    @Override
+    public String toString(){
+        return this.id+"";
+    }
     
 }

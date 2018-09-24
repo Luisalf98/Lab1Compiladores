@@ -22,7 +22,7 @@ public class Transition {
         private final Text symbol;
         
         public TransitionLine(double x1, double y1, double x2, double y2, double incidents, 
-                String symbol, boolean same){
+                double last, double current, String symbol, boolean same){
             
             this.line = new CubicCurve();
             this.line.setFill(null);
@@ -31,15 +31,13 @@ public class Transition {
             
             double dm = Math.sqrt(Math.pow(y2-y1, 2)+Math.pow(x2-x1, 2))/2;
             double h = dm*Math.tan(ANGLE)+80*(incidents-1);
+            double newAngle = Math.atan2(h, dm);
             
-            double d = Math.sqrt(Math.pow(h, 2)+Math.pow(dm, 2));
+            double d = Math.sqrt(Math.pow(dm*Math.tan(newAngle), 2)+Math.pow(dm, 2));
             
             double ang = Math.atan2((y2-y1),(x2-x1));
-            double ang2 = ang-Math.atan2(h, dm);
-
-            double cy = y1+Math.sin(ang2)*d;
-            double cx = x1+Math.cos(ang2)*d;
-
+            double ang2 = ang-newAngle;
+            
             this.line.setStartX(x1);
             this.line.setStartY(y1);
             this.line.setEndX(x2);
@@ -52,10 +50,10 @@ public class Transition {
                 this.line.setControlX2(x2+l*Math.cos(SAME_END_ANGLE));
                 this.line.setControlY2(y2+l*Math.sin(SAME_END_ANGLE));
             }else{
-                this.line.setControlX1((x1+cx)/2);
-                this.line.setControlY1((y1+cy)/2);
-                this.line.setControlX2((x2+cx)/2);
-                this.line.setControlY2((y2+cy)/2);
+                this.line.setControlX1(x1+Math.cos(ang2)*d/2);
+                this.line.setControlY1(y1+Math.sin(ang2)*d/2);
+                this.line.setControlX2(x2+Math.cos(ang2)*-d/2);
+                this.line.setControlY2(y2+Math.sin(ang2)*d/2);
             }
             
             Point2D[] sp = this.getSlopePoints(0.5f);
@@ -72,7 +70,7 @@ public class Transition {
             
             
             this.symbol = new Text(lp.getX()+4, lp.getY()-6, symbol);
-            this.symbol.setFont(new Font(20));
+            this.symbol.setFont(new Font(Af.FONT_SIZE));
             
         }
 
@@ -119,6 +117,10 @@ public class Transition {
         this.prevState = prevSt;
     }
 
+    public State getPrevState() {
+        return prevState;
+    }
+
     public State getNextState() {
         return nextState;
     }
@@ -131,14 +133,9 @@ public class Transition {
         return tl;
     }
     
-    public void createDraw(){
+    private void createDraw(int inc, int last, int current, boolean same){
         
-        boolean same = this.prevState.getId() == this.nextState.getId();
-        
-        double x1,x2,y1,y2,incidents;
-        
-        this.prevState.addOneToIncidents(this.nextState.getId());
-        incidents = this.prevState.getIncidentCounter(this.nextState.getId());
+        double x1,x2,y1,y2;
         
         if(same){
             
@@ -168,11 +165,16 @@ public class Transition {
             
         }
         
-        this.tl = new TransitionLine(x1, y1, x2, y2, incidents, String.valueOf(this.symbol), same);
+        this.tl = new TransitionLine(x1, y1, x2, y2, inc, last, current, String.valueOf(this.symbol), same);
     }
     
-    public void draw (Group gp){
+    public void draw (Group gp, int inc, int last, int current, boolean same){
+        this.createDraw(inc, last, current, same);
         this.tl.draw(gp);
     }
     
+    @Override
+    public String toString(){
+        return this.prevState+"->"+this.nextState+":"+this.symbol;
+    }
 }

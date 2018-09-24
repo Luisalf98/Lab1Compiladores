@@ -1,61 +1,74 @@
 package compiladores;
 
+import Thomson.CompiladoresV20;
 import java.awt.Toolkit;
 import javafx.application.Application;
+import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.Label;
+import javafx.scene.control.RadioButton;
+import javafx.scene.control.RadioMenuItem;
 import javafx.stage.Stage;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 
 public class LexicalAnalysis extends Application{
     
+    private  CompiladoresV20 c;
+    private Af af;
     @Override
     public void start(Stage stage){
         
-        State st0 = new State(0, State.START);
-        State st1 = new State(1, State.END);
-        State st2 = new State(2, State.NORMAL);
         
-        st0.addTransition(st1, 'a');
-        st0.addTransition(st1, 'b');
-        st0.addTransition(st1, 'c');
-        st0.addTransition(st1, 'd');
-        st0.addTransition(st1, 'e');
-        st0.addTransition(st2, 'f');
-        st0.addTransition(st2, 'g');
-        st0.addTransition(st2, 'h');
-        st0.addTransition(st2, 'i');
-        st0.addTransition(st2, 'j');
+//        Af af = new Af(c.getThompsonAutomata(), c.getSubConjuntoAutomata(), c.getEstadoSignificativos(),
+//                c.getTablaEstados());
+
+//        System.out.println("ALFABETO");
+//        System.out.println(af.getAlfabeto());
+//        System.out.println("\nTHOMPSON");
+//        System.out.println(af.getAfn());
+//        System.out.println("\nAFD No Optimo - Subconjuntos");
+//        System.out.println(af.getAfdno());
+//        System.out.println("\nEstados AFD en terminos de estados del AFN");
+//        System.out.println(af.getEstadosD());
+//        System.out.println("\nEstados Significativos");
+//        System.out.println(af.getEstSig());
+//        System.out.println("\nAFD Optimo - Estados Significativos");
+//        System.out.println(af.getAfd());
         
-        st2.addTransition(st1, 'a');        
-        st2.addTransition(st1, 'b');
-        st2.addTransition(st1, 'c');
-        st2.addTransition(st1, 'd');
-        st2.addTransition(st1, 'e');
-        st2.addTransition(st0, 'f');
-        st2.addTransition(st0, 'g');
-        st2.addTransition(st0, 'h');
-        st2.addTransition(st0, 'i');
-        st2.addTransition(st0, 'j');
+        GridPane grid = new GridPane();
         
-        st0.createDraw(100, 100, 30);
-        st1.createDraw(300, 100, 30);
-        st2.createDraw(500, 100, 30);
+//        Group gp1 = new Group();
+//        ScrollPane sp1 = new ScrollPane(gp1);
+//        af.draw(gp1, af.getAfn(), af.getStatesAfn());
         
-        st0.createTransitionsDraw();
-        st1.createTransitionsDraw();
-        st2.createTransitionsDraw();
+        VBox vb = new VBox();
+        Label l = new Label("Expresión Regular");
+        TextField t = new TextField();
+        Button b = new Button("Compilar");
+        b.setOnMouseClicked(e->{
+            c = new CompiladoresV20(t.getText());
+            af = new Af(c.getThompsonAutomata(), c.getSubConjuntoAutomata(), c.getEstadoSignificativos(), 
+                            c.getTablaEstados());
+        });
         
-        Group gp = new Group();
+        vb.setSpacing(5);
+        vb.setAlignment(Pos.CENTER);
+        vb.getChildren().add(l);
+        vb.getChildren().add(t);
+        vb.getChildren().add(b);
         
-        st0.draw(gp);
-        st1.draw(gp);
-        st2.draw(gp);
+        grid.add(vb, 0, 0);
         
-        ScrollPane sp = new ScrollPane(gp);
-        
+        ScrollPane main = new ScrollPane(grid);
         Toolkit tk = Toolkit.getDefaultToolkit();
-        Scene scene = new Scene(sp, tk.getScreenSize().getWidth(), tk.getScreenSize().getHeight());
+        Scene scene = new Scene(main, tk.getScreenSize().getWidth(), tk.getScreenSize().getHeight());
         
         stage.setTitle("Lexical Analysis");
         stage.setScene(scene);
